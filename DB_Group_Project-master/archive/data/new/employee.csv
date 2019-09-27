@@ -1,0 +1,24 @@
+EMPNO,FNAME,LNAME,POSITION,PHONE,EMAIL,DOB,GENDER,SALARY,HIREDATE,OUTNO,SUPERVISORNO
+285,Martha,Jones,General Manager,4195717055,mjones@car_rental.com,18-Jun-86,F,100000,12-Oct-09,386703,
+193,Brian,Smith,Operations Manager,5104429270,bsmith@car_rental.com,29-Jun-85,M,78000,20-Dec-13,677386,285
+56,Delbert,Quintero,Operations Manager,7323615593,dquintero@car_rental.com,07-Jul-80,M,85000,24-Jan-12,476412,285
+1939,Kelly,Jackson,Office Manager,7082005099,kjackson@car_rental.com,01-Nov-84,F,98000,07-Mar-12,476412,285
+6834,Hillary,Dennis,Office Manager,5016581818,hdennis@car_rental.com,29-Aug-82,F,98000,19-Jun-14,926360,285
+341,Kevin,Mares,Office Manager,7045126712,kmares@car_rental.com,11-Jun-73,M,93000,13-Aug-15,942762,285
+237,Helen,Lewis,Office Manager,4122787768,helenl@car_rental.com,11-Aug-90,F,3800,05-Apr-17,134523,285
+559,Isaias,Gatson,Rental Agent,2482011215,igatson@car_rental.com,26-Jan-84,M,80000,13-Feb-12,942762,56
+786,Robert,Meinhardt,Rental Agent,8484664566,rmeinhardt@car_rental.com,21-Jul-83,M,72000,15-Jul-16,677386,56
+20,Michele,Marcum,Customer Service,3054137501,mmarcum@car_rental.com,02-Feb-92,F,52000,05-Aug-16,386703,193
+863,Carl,Landwehr,Customer Service,4074153207,clandwehr@car_rental.com,20-Aug-70,M,67000,30-Sep-16,386703,193
+362,Wallace ,Fernandes,Supervisor,8632687856,wfernandes@car_rental.com,15-May-82,M,80000,13-May-17,939863,193
+263,Stephen ,Bentley,Car Washer,4600359839,sbentley@car_rental.com,16-Jan-81,M,47000,24-Mar-18,939863,362
+505,Georgia,Murray,Rental Agent,4102951574,gmurray@car_rental.com,19-May-76,F,56000,18-Jun-18,386703,56
+1,Molly,Taylor,Admin,4123452467,mollyt@car_rental.com,11-Aug-89,F,3800,05-Apr-15,134523,237
+2,John,Smith,Mechanics,4125824290,johns@car_rental.com,11-Aug-88,M,4000,20-Aug-10,134523,237
+3,Micheal,Jones,Sales rep,4127457862,michealj@car_rental.com,20-Dec-82,M,5500,20-Jan-13,134523,237
+4,David,Parker,Sales rep,4123904432,davidp@car_rental.com,16-Jan-78,M,4500,10-Apr-07,134523,237
+5,Mario,Brown,Mechanics,4124091290,mariob@car_rental.com,01-Jun-80,M,4000,10-Jan-08,243868,237
+6,Larry,Davis,Sales rep,4122899078,larryd@car_rental.com,27-Nov-83,M,5000,01-Jun-09,243868,237
+7,Luke,White,Sales rep,4129904908,lukew@car_rental.com,11-Apr-87,M,3500,05-Apr-18,348931,237
+8,Erica,King,Sales rep,4124237623,ericak@car_rental.com,20-Sep-80,F,3500,05-Dec-12,348931,237
+9,Jacob,Baker,Mechanics,4124058915,jacobb@car_rental.com,01-Feb-92,M,3000,05-Apr-16,348931,237

@@ -1,0 +1,122 @@
+SET LINESIZE 300
+SET PAGESIZE 300
+--1--OUTLET
+COLUMN CLIENTNAME FORMAT A40
+SELECT clientNo,rentalNo, ClientName,
+	(ReturnDate-StartDate)*24 AS "Duration", 
+	CEIL((ReturnDate-StartDate))*DailyRate AS "Cost"
+FROM Client JOIN Ragreement USING (clientNo) JOIN Vehicle USING(LicenseNo)
+WHERE State = 'PA'
+ORDER BY ClientName;
+--2--
+SELECT EmpNo, Fname||' '||Lname AS "Name", COUNT(ReportNum) AS "Rank"
+FROM Employee LEFT OUTER JOIN Faultreport USING (EmpNo)
+GROUP BY (EmpNo,Fname,Lname)
+ORDER BY 3 DESC;
+--3--
+SELECT OutNo, NVL(SUM((DateChecked-ReturnDate)*24),0) AS "RPT_GEN_TIME"
+FROM RAGREEMENT JOIN FAULTREPORT USING(RentalNo) JOIN VEHICLE ON(RAGREEMENT.LicenseNo = VEHICLE.LicenseNo) JOIN OUTLET USING (outNo)
+GROUP BY (OutNo)
+ORDER BY (OutNo);
+--4--
+SELECT clientNo, ClientName, Contact_FName ||' '||Contact_LName AS "Contact", Email, Phone
+FROM(SELECT DISTINCT clientNo FROM RAGREEMENT
+	MINUS SELECT DISTINCT clientNo FROM FAULTREPORT JOIN RAGREEMENT USING (RentalNo)) 
+	JOIN CLIENT USING(clientNo);
+--5--	
+SELECT OutNo,Total_Count,Total_Rev 
+FROM
+(SELECT OutNo, COUNT(RentalNo) Total_Count, 
+	SUM(CEIL(ReturnDate-StartDate)*DailyRate) Total_Rev,
+	RANK() OVER (ORDER BY SUM(CEIL(ReturnDate-StartDate)*DailyRate) DESC) Rank
+	FROM Ragreement JOIN Vehicle USING(LicenseNo)
+	GROUP BY (OutNo))
+WHERE Rank <= 2;
+--6--
+SELECT RentalNo, OutNo, OUTLET.Street, StartDate, ReturnDate, clientNo, ClientName
+FROM OUTLET 
+	JOIN
+		(SELECT OutNo
+		FROM Ragreement JOIN Vehicle USING(LicenseNo)
+		HAVING (COUNT(RentalNo) = (SELECT MAX(COUNT(RentalNo))
+			FROM Ragreement JOIN Vehicle USING(LicenseNo)
+			GROUP BY (OutNo)))
+		GROUP BY (OutNo)) USING(OutNo)
+	JOIN Vehicle USING(OutNo) 
+	JOIN RAGREEMENT USING(LicenseNo)
+	JOIN Client USING(clientNo);
+--7--
+SELECT clientNo, ClientName, COUNT(rentalNo), COUNT(ReportNum), NVL(AVG(ReturnDate-StartDate),0) AVG_RENTAL_DAYS
+FROM CLIENT 
+	LEFT OUTER JOIN RAGREEMENT USING(clientNo)
+	LEFT OUTER JOIN FAULTREPORT USING (rentalNo)
+WHERE state = 'WV'
+GROUP BY(clientNo, ClientName);
+--8--
+COLUMN Make FORMAT A20
+SELECT outNo, Make, SUM(CEIL(ReturnDate-StartDate)*DailyRate) AS Tot_Revenue, COUNT(REPORTNUM) as FaultReportCount
+FROM outlet JOIN vehicle USING (outNo)
+            LEFT OUTER JOIN ragreement USING(LicenseNo)
+			LEFT OUTER JOIN FAULTREPORT USING(RentalNo)
+GROUP BY outNo, Make
+ORDER BY outNo;
+--9--
+COLUMN CAR_INFO FORMAT A50
+COLUMN Comments FORMAT A50
+SELECT ReportNum, DateChecked, ReturnDate, Comments, VEHICLE.LicenseNo ||','|| Make ||','|| Model ||','|| Color AS "CAR_INFO", Fname || ' ' || Lname AS "EMP_NAME"
+FROM FAULTREPORT 
+	JOIN RAGREEMENT USING (rentalNo)
+	JOIN VEHICLE ON (FAULTREPORT.LicenseNo = VEHICLE.LicenseNo)
+	JOIN EMPLOYEE USING(EmpNo)	
+WHERE ReturnDate < trunc(sysdate, 'MM') 
+	AND ReturnDate >= trunc(add_months(sysdate,-1), 'MM');
+--10--
+SELECT  m.EmpNo, m.Fname||' '||m.Lname, 
+	COUNT(DISTINCT OUTLET.outNo) AS "OUTLETS", 
+	COUNT(DISTINCT e.EmpNo) AS "EMPLOYEES", 
+	COUNT(DISTINCT LicenseNo) AS "VEHICLES"
+FROM EMPLOYEE m
+	JOIN OUTLET ON(OUTLET.ManagerNo = m.EmpNo)
+	JOIN EMPLOYEE e ON (e.outNo = OUTLET.outNo)
+	JOIN Vehicle ON (Vehicle.outNo = OUTLET.outNo)
+GROUP BY (m.EmpNo, m.Fname, m.Lname);
+--11--
+SELECT PERIOD, COUNT(*) TOTAL_EACH, COUNT(*)*100/(SUM(COUNT(*)) OVER()) PERCENTAGE FROM(
+SELECT
+(CASE
+	WHEN TO_CHAR(StartDate,'HH24') BETWEEN 6 AND 11 THEN 'MORNING'
+	WHEN TO_CHAR(StartDate,'HH24') BETWEEN 12 AND 17 THEN 'AFTERNOON'
+	WHEN TO_CHAR(StartDate,'HH24') BETWEEN 18 AND 22 THEN 'EVENING'
+	ELSE 'OUT OF WORK'
+	END) PERIOD FROM RAGREEMENT
+UNION ALL
+SELECT
+(CASE
+	WHEN TO_CHAR(ReturnDate,'HH24') BETWEEN 6 AND 11 THEN 'MORNING'
+	WHEN TO_CHAR(ReturnDate,'HH24') BETWEEN 12 AND 17 THEN 'AFTERNOON'
+	WHEN TO_CHAR(ReturnDate,'HH24') BETWEEN 18 AND 22 THEN 'EVENING'
+	ELSE 'OUT OF WORK'
+	END) PERIOD FROM RAGREEMENT)
+GROUP BY (PERIOD);
+--12--
+SELECT CLIENT_TYPE, NVL(TOTAL_EACH,0) COUNT FROM 
+(
+SELECT DECODE(LEVEL,1, 'EDUCATION', 2,'GOVERNMENT AGENCY',3,'NON-FOR-PROFIT ORGANIZATION',4,'FOR-PROFIT COMPANY',5,'NOT AVAILABLE') CLIENT_TYPE FROM DUAL
+CONNECT BY LEVEL<=5
+) 
+LEFT OUTER JOIN
+(
+SELECT CLIENT_TYPE, COUNT(*) TOTAL_EACH FROM(
+SELECT
+(CASE
+	WHEN LOWER(WebAddress) LIKE '%.edu' THEN 'EDUCATION'
+	WHEN LOWER(WebAddress) LIKE '%.gov' THEN 'GOVERNMENT AGENCY'
+	WHEN LOWER(WebAddress) LIKE '%.org' THEN 'NON-FOR-PROFIT ORGANIZATION'
+	WHEN LOWER(WebAddress) LIKE '%.com' THEN 'FOR-PROFIT COMPANY'
+	WHEN WebAddress IS NULL THEN 'NOT AVAILABLE'
+	ELSE 'PERSONAL'
+	END) CLIENT_TYPE FROM CLIENT)
+GROUP BY (CLIENT_TYPE)
+)
+USING (CLIENT_TYPE)
+;
